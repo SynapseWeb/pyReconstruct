@@ -30,6 +30,10 @@ jobs:
         version: '6.5.0'
         install-deps: 'true'
 
+    - name: Install Linux dependencies
+      if: runner.os == 'Linux'
+      run: sudo apt install libxcb
+
     - name: Install Qt on Windows
       if: runner.os == 'Windows'
       uses: jurplel/install-qt-action@v3
@@ -41,5 +45,4 @@ jobs:
         	
     - name: Run tox test
       run: |
-        qmake --version
         tox
