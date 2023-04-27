@@ -22,9 +22,12 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
         
-    - name: Install x11 dependencies
-      run: sudo apt install -y xvfb x11-utils libxkbcommon-x11-0
+    - name: Install system libraries
+      run: sudo apt install libgl1-mesa-dev
       
     - name: Install Python dependencies
       run: |
