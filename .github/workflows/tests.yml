@@ -30,9 +30,9 @@ jobs:
         version: '6.5.0'
         install-deps: 'true'
 
-    - name: Install Linux dependencies
+    - name: Install Linux libxcb2 dependencies
       if: runner.os == 'Linux'
-      run: sudo apt install libxcb1-dev
+      run: sudo apt install libxcb-xinerama0-dev libxcb-shape0-dev libxcb-keysyms1-dev libxcb-randr0-dev
 
     - name: Install Qt on Windows
       if: runner.os == 'Windows'
