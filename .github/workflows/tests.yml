@@ -32,7 +32,7 @@ jobs:
 
     - name: Install Linux dependencies
       if: runner.os == 'Linux'
-      run: sudo apt install libxcb
+      run: sudo apt install libxcb1-dev
 
     - name: Install Qt on Windows
       if: runner.os == 'Windows'
