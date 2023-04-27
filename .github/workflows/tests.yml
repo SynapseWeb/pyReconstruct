@@ -25,6 +25,9 @@ jobs:
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
+      with:
+        version: '6.5.0'
+        install-deps: 'true'	
         
     - name: Install Python dependencies
       run: |
