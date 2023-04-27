@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [windows-latest]
         python-version: ['3.10']
 
     steps:
@@ -23,11 +23,16 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install Qt
+    - name: Install Qt on Linux
+      if: runner.os == 'Linux'
       uses: jurplel/install-qt-action@v3
       with:
         version: '6.5.0'
-        install-deps: 'true'	
+        install-deps: 'true'
+
+    - name: Install Qt on Windows
+      if: runner.os == 'Windows'
+      uses: jurplel/install-qt-action@v3
         
     - name: Install Python dependencies
       run: |
@@ -36,4 +41,5 @@ jobs:
         	
     - name: Run tox test
       run: |
+        qmake --version
         tox
