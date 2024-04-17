@@ -6,6 +6,7 @@ import webbrowser
 from datetime import datetime
 import json
 import subprocess
+import requests
 
 from PySide6.QtWidgets import (
     QMainWindow, 
@@ -407,7 +408,8 @@ class MainWindow(QMainWindow):
                             ("setzarrlayer_act", "Set zarr layer...", "", self.setZarrLayer),
                             ("removezarrlayer_act", "Remove zarr layer", "", self.removeZarrLayer)
                         ]
-                    }
+                    },
+                    ("autotest_act", "Run test...", "", self.autosegServerTest)
                 ]
             },
             {
@@ -2472,12 +2474,36 @@ class MainWindow(QMainWindow):
 
         print("Segmentation done.")
 
-        # display the segmetnation
+        # display the segmentation
         self.setZarrLayer(data_fp)
         for zg in os.listdir(data_fp):
             if zg.startswith("seg"):
                 self.setLayerGroup(zg)
                 break
+
+    def autosegServerTest(self):
+        """Run autoseg test."""
+        
+        server = "http://khlabgpu1.clm.utexas.edu:5000"
+        req = {"source": "/home/anton/github/autoseg/src/autoseg/artifacts/UNet s2/snapshots/snapshots.zarr", "output": "easy_test.zarr"}
+        
+        try:
+            
+            response = requests.post(f"{server}/predict", json=req)
+            response.raise_for_status()
+            
+        except requests.HTTPError as http_err:
+            
+            notify(f"HTTP error occurred:\n\n{http_err}")
+            
+        except Exception as err:
+            
+            notify(f"A server error occurred:\n\n{err}")
+            
+        else:
+
+            response_str = json.dumps(response.json(), indent=2)
+            notify(response_str)
     
     def importLabels(self, all=False):
         """Import labels from a zarr."""
