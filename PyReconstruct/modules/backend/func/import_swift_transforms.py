@@ -1,6 +1,5 @@
 import os
 import json
-from datetime import datetime
 import numpy as np
 
 from PyReconstruct.modules.datatypes import Series, Transform
@@ -17,34 +16,49 @@ class IncorrectSecNumError(Exception):
 
 def cafm_to_matrix(t):
     """Convert c_afm to Numpy matrix."""
-    return np.matrix([[t[0][0], t[0][1], t[0][2]],
-                      [t[1][0], t[1][1], t[1][2]],
-                      [0, 0, 1]])
+    
+    if isinstance(t, str):
+        
+        t = [float(elem) for elem in t.split(" ")]
+
+        return np.matrix([
+                [t[0], t[1], t[2]],
+                [t[3], t[4], t[5]],
+                [0, 0, 1]
+            ])
+
+    else:
+        
+        return np.matrix([
+            [t[0][0], t[0][1], t[0][2]],
+            [t[1][0], t[1][1], t[1][2]],
+            [0, 0, 1]
+        ])
 
 
 def cafm_to_sanity(t, dim, scale_ratio=1, old_swift=False):
     """Convert c_afm to something sane."""
 
-    # Convert to matrix
+    ## Convert to matrix
     t = cafm_to_matrix(t)
 
-    # Transforms in older SWiFT project files are stored as inverted matrices
+    ## Transforms in older SWiFT project files are stored as inverted matrices
     if old_swift: t = np.linalg.inv(t)
     
-    # Get translation of bottom left corner from img height (px)
+    ## Get translation of bottom left corner from img height (px)
     BL_corner = np.array([[0], [dim], [1]])  # original BL corner
     BL_translation = np.matmul(t, BL_corner) - BL_corner
 
-    # Add BL corner translation to c_afm (x and y translation)
-    t[0, 2] = BL_translation[0, 0] # x translation in px
-    t[1, 2] = BL_translation[1, 0] # y translation in px
+    ## Add BL corner translation to c_afm (x and y translation)
+    t[0, 2] = BL_translation[0, 0]  # x translation in px
+    t[1, 2] = BL_translation[1, 0]  # y translation in px
 
-    # Flip y axis by changing signs of a2, b1, and b3
+    ## Flip y axis by changing signs of a2, b1, and b3
     t[0, 1] *= -1  # a2
     t[1, 0] *= -1  # b1
     t[1, 2] *= -1  # b3
     
-    # Apply any scale ratio difference
+    ## Apply any scale ratio difference
     t[0, 2] *= scale_ratio
     t[1, 2] *= scale_ratio
 
@@ -115,7 +129,7 @@ def make_pyr_transforms(project_file, scale=1, cal_grid=False):
             transform = cafm_to_sanity(transform, dim=img_height, scale_ratio=height_ratio, old_swift=True)
             pyr_transforms.append(transform)
     
-    del(transform)
+    del transform
 
     return pyr_transforms
 
@@ -170,7 +184,7 @@ def importSwiftTransforms(series: Series, project_fp: str, scale: int = 1, cal_g
     # set tforms
     fname = os.path.basename(project_fp)
     fname = fname[:fname.rfind(".")]
-    d, t = getDateTime()
+    d, _ = getDateTime()
     new_alignment_name = f"{fname}-{d}"
     
     for section_num, section in series.enumerateSections(

@@ -1,5 +1,4 @@
 import os
-from datetime import datetime
 
 from PyReconstruct.modules.datatypes import Series, Transform
 from PyReconstruct.modules.constants import getDateTime
