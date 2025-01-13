@@ -1,7 +1,7 @@
 """Perform SWiFT operations."""
 
 from pathlib import Path
-from typing import Union, Tuple, cast
+from typing import Union, List, Tuple, cast
 
 from PyReconstruct.modules.backend.func import get_stdout
 
@@ -96,16 +96,85 @@ class Swim:
         estimate_output = SwimOutput(estimate_string)
 
         return estimate_output
+
+    def construct_command(
+            self, x_off: int, y_off: int, center_tmpl: Coordinate, center: Coordinate
+    ) -> str:
+            """Construct a swim command."""
+
+            cmd  = f"{self.bin} {self.window} -i 3 "
+            cmd += f"-x {x_off} -y {y_off} "
+            cmd += f"{self.img_template} {center_tmpl[0]} {center_tmpl[1]} "
+            cmd += f"{self.img} {center[0]} {center[1]}"
+
+            return cmd
         
-    def run(self):
+    def run(self) -> List[SwimOutput]:
+        """Run swim operation."""
 
-        pass        
+        offsets = (
+            (-250, -250),
+            ( 250, -250),
+            ( 250,  250),
+            (-250,  250)
+        )
 
+        anon = lambda e: self.construct_command(e[0], e[1], (1000, 1000), (868.734, 936.193))
+        cmds = list(map(anon, offsets))
+
+        multi_swim = [SwimOutput(get_stdout(cmd)) for cmd in cmds]
+
+        return multi_swim
+
+
+class MirOutput:
+
+    def __init__(self, stdout):
+
+        self.stdout = stdout
+
+    @staticmethod
+    def parse_string():
+
+        pass
+
+    @staticmethod
+    def parse_affine():
+
+        pass
+            
 
 class Mir:
     """Perform mir (multi-image registration) operation."""
 
-    pass
+    def __init__(self, bin: str, multi_swim: List[SwimOutput], img: Image, img_size, background: int=128):
 
+        self.mutli_swim = multi_swim
+        self.img = img
+        self.img_size = img_size
+        self.background = background
+
+    def make_mir_file(self) -> str:
+        """Construct and output a mir file."""
+
+        tmp_file = "/tmp/tmp.mir"  # TODO: Make real temp file
+
+        with open(tmp_file, "a") as fp:
+
+            fp.write(f"B {self.img_size[0]} {self.img_size[1]}\n")
+            fp.write(f"Z {self.background}\n")
+
+            for swim in self.mutli_swim:
+
+                fp.write(f"{swim.co_1[0]} {swim.co_1[1]} {swim.co_2[0]} {swim.co_2[1]}\n")
+        
+        return tmp_file
+
+    def run(self):
+        """Run mir operation."""
+
+        mir_file = make_mir_file()
+
+        return None
 
 

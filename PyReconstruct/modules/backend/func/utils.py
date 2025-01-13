@@ -17,4 +17,4 @@ def run_command(cmd):
 def get_stdout(cmd):
     """Get stdout from a command."""
 
-    return run_command(                 cmd).stdout
+    return run_command(cmd).stdout
