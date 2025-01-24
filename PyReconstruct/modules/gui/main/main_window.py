@@ -1930,6 +1930,8 @@ class MainWindow(QMainWindow):
             f"\"{self.series.jser_fp}\""
         ]
 
+        print(f"{convert_cmd = }")
+
         for argname, arg in args.items():
             if arg or arg == 0:
                 if type(arg) is bool:
